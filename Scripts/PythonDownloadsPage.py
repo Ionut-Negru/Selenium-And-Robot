@@ -3,130 +3,117 @@
 from chrome_driver import ChromeDriver
 import datetime
 
-
 class PythonDownloadsPage(ChromeDriver):
     
     def __init__(self):
         super().__init__()
         self.browser = ChromeDriver.browser
-        
-    def find_entry_in_releases_table(self, row=0, column_name='', to_be_found=''):
-        """
-            For row the value 0 represents the first row of the table
-            Options for column_name:
-                - Release number - the python version
-                - Release date   - the date of the release
-                - Release enhancements - button to see the release notes of the specified release
-        """
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']" \
-                                                                   +"/ol[@class='list-row-container menu']/" \
-                                                                   +f"li[{row+1}]/span[@class='{column_name.lower().replace(' ','-')}']" \
-                                                                   +f"/a[contains(text(),'{to_be_found}')]")
-        if len(self.current_element) > 0:
-            return True
-        else:
-            return False
-        
-    def get_data_from_releases_table(self, row=0, column_name=''):
-        """
-            This method will return the value present at the given row and column name 
-            For row the value 0 represents the first row of the table
-            Options for column_name:
-                - Release number - the python version
-                - Release date   - the date of the release
-                - Release enhancements - button to see the release notes of the specified release
-        """
-        self.current_element = self.browser.find_element_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']" \
-                                                                   +"/ol[@class='list-row-container menu']/" \
-                                                                   +f"li[{row+1}]/span[@class='{column_name.lower().replace(' ','-')}']/a")
-        return self.current_element.text
-               
-    def get_data_from_versions_table(self, row=0, column_name=''):
-        """
-            For row the value 0 represents the first row of the table
-            Options for column_name:
-                - Release version - the python version of the row
-                - Release status - the current status of the python version (bugfix, end-of-life, security , etc)
-                - Release start - the release date of the version
-                - Release end - the support end date of the version
-                - Release PEP - the PEP released with the version
-                
-        """  
-        self.current_element = self.browser.find_element_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']" \
-                                                                  +f"/li[{row+1}]/span[@class='{column_name.lower().replace(' ','-')}']")
-        return self.current_element.text
     
-    def find_entry_in_versions_table(self, row=0, column_name='', to_be_found=''):
-        """
-            For row the value 0 represents the first row of the table
-            Options for column_name:
-                - Release version - the python version of the row
-                - Release status - the current status of the python version (bugfix, end-of-life, security , etc)
-                - Release start - the release date of the version
-                - Release end - the support end date of the version
-                - Release PEP - the PEP released with the version
-            
-            to_be_found - the string we are looking for in a specific column    
-        """  
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']" \
-                                                                   +f"/li[{row+1}]" \
-                                                                   +f"/span[@class='{column_name.lower().replace(' ','-')}' and contains(text(),'{to_be_found}')]")
-        if len(self.current_element) > 0:
-            return True
-        else:
-            return False
+    def get_releases_table(self):
+        table_head = self.get_releases_table_head()
+        table_rows = self.get_releases_table_rows()
+        self.releases_table = []
+        for row in table_rows:
+            aux = {}
+            for i in range(len(row)):
+                aux[table_head[i]] = row[i]
+            self.releases_table.append(aux)
+          
+    def get_releases_table_head(self):
+        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']/div[@class='list-row-headings']/span")
+        aux = []
+        for head in self.current_element:
+            aux.append(head.text)
+        return aux
     
-    def find_entry_in_column_in_releases_table(self, column_name, to_be_found):
-        """
+    def get_releases_table_rows(self):
+        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']/ol[@class='list-row-container menu']/li")
+        rows = []
+        for i in range(len(self.current_element)):
+            row = self.browser.find_elements_by_xpath(f"//section[@class='main-content ']/div[@class='row download-list-widget']/ol[@class='list-row-container menu']/li[{i+1}]/span")
+            aux = []
+            for x in row:
+                aux.append(x.text)
+            rows.append(aux)
+        return rows
+    
+    def get_versions_table(self):
+        table_head = self.get_versions_table_head()
+        table_data = self.get_versions_table_rows()
+        self.version_table = []
+        for row in table_data:
+            aux = {}
+            for i in range(len(row)):
+                aux[table_head[i]] = row[i]
+            self.version_table.append(aux)
             
-            Options for column_name:
-                - Release number - the python version
-                - Release date   - the date of the release
-                - Release enhancements - button to see the release notes of the specified release
-            
-            to_be_found - the string searched inside the column
-        """
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']/ol[@class='list-row-container menu']/li"\
-                                                                   +f"/span[@class='{column_name.lower().replace(' ','-')}']/a[contains(text(),'{to_be_found}')]")
-        if len(self.current_element) > 0:
-            return True
-        else:
-            return False
-        
-    def get_row_from_versions_table(self, row=0):
-        """
-            Return a list of strings of the specified row of the versions table. 0 is the first row of the table
-            The list will have the format : [Release version, Release status, Release start, Release end, Release PEP]
-        """
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']" \
-                                                                  +f"/li[{row+1}]/span")
+    def get_versions_table_head(self):
+        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/div[@class='list-row-headings']/span")
         aux = []
         
-        for data in self.current_element:
-            aux.append(data.text)
+        for i in self.current_element:
+            aux.append(i.text)
+        
+        return aux
+        
+    def get_versions_table_rows(self):
+        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']/li")
+        rows = []
+        for i in range(len(self.current_element)):
+            row = self.browser.find_elements_by_xpath(f"//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']/li[{i+1}]/span")
+            aux = []
+            for x in row:
+                aux.append(x.text)
+            rows.append(aux)
+        return rows
+          
+    def get_versions_table_row(self, row=0):
+        return self.version_table[row]
+    
+    def get_releases_table_row(self, row=0):
+        return self.releases_table[row]
+    
+    def get_versions_table_column(self, column_name=''):
+        aux = []
+        
+        for x in self.version_table:
+            aux.append(x[column_name])
         
         return aux
     
-    def get_row_from_releases_table(self, row=0):
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']"\
-                                                                   +f"/ol[@class='list-row-container menu']/li[{row+1}]/span")
-        
+    def get_releases_table_column(self,column_name=''):
         aux = []
         
-        for data in self.current_element:
-            aux.append(data.text)
-        
+        for x in self.releases_table:
+            aux.append(x[column_name])
+            
         return aux
-    
-    def get_latest_release_date(self):
-        return datetime.datetime.strptime(self.get_row_from_releases_table(0)[1],"%b. %d, %Y")
-    
-    def get_latest_version_date(self):
-        return datetime.datetime.strptime(self.get_row_from_versions_table(0)[2],"%Y-%m-%d")
     
     def get_latest_version(self):
-        return self.get_row_from_versions_table(0)[0]
+        return self.get_versions_table_row(0)['Python version']
     
     def get_latest_release(self):
-        return self.get_row_from_releases_table(0)[0]
+        return self.get_releases_table_row(0)['Release version']
+
+    def get_latest_release_date(self):
+        aux = self.get_releases_table_row(0)['Release date']
+        return datetime.datetime.strptime(aux,"%b. %d, %Y")
+    
+    def get_latest_version_date(self):
+        aux = self.get_versions_table_row(0)['First released']
+        return datetime.datetime.strptime(aux,"%Y-%m-%d")
         
+    def has_entry_inside_releases_table_column(self, column_name='', entry=''):
+        for aux in self.get_releases_table_column(column_name):
+            if aux.find(entry):
+                return True
+        return False
+    
+    def has_entry_inside_versions_table_column(self, column_name='', entry=''):
+        for aux in self.get_versions_table_column(column_name):
+            if aux.find(entry):
+                return True
+        return False
+        
+    
+    
