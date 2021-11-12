@@ -11,4 +11,4 @@ Number of decorator example test
     Select Result    0
     ${number_of_examples}=    Get Number Of Examples
     Should be Equal    ${number_of_examples}    5
-    Close PEP318 Page
+    Close Browser

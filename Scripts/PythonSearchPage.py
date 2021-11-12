@@ -4,7 +4,7 @@ from chrome_driver import ChromeDriver
 class PythonSearchPage(ChromeDriver):
     
     def __init__(self):
-        ChromeDriver.__init__(self)
+        super().__init__()
         self.browser = ChromeDriver.browser
         self.search_results = {}
         
@@ -23,6 +23,5 @@ class PythonSearchPage(ChromeDriver):
             else:
                 i = i + 1
                 
-    def close_search_page(self):
-        self.close_browser()
+    
     

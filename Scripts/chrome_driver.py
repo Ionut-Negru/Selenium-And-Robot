@@ -23,10 +23,6 @@ class ChromeDriver:
     def open_browser(self, site_link=""):
         ChromeDriver.browser.get(site_link)
         
-    def close_browser(self):
-        ChromeDriver.browser.close()
-        ChromeDriver.browser = None
-        current_element = None
                 
                 
                 
