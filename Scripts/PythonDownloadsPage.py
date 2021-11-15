@@ -21,21 +21,27 @@ class PythonDownloadsPage(ChromeDriver):
           
     def get_releases_table_head(self):
         self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']/div[@class='list-row-headings']/span")
-        aux = []
+        self.releases_table_head = []
         for head in self.current_element:
-            aux.append(head.text)
-        return aux
+            self.releases_table_head.append(head.text)
+        return self.releases_table_head
     
     def get_releases_table_rows(self):
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']/ol[@class='list-row-container menu']/li")
-        rows = []
-        for i in range(len(self.current_element)):
-            row = self.browser.find_elements_by_xpath(f"//section[@class='main-content ']/div[@class='row download-list-widget']/ol[@class='list-row-container menu']/li[{i+1}]/span")
+        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row download-list-widget']/ol[@class='list-row-container menu']/li/span")
+        self.releases_table_rows = []
+        i=0
+        while i < len(self.current_element):
             aux = []
-            for x in row:
-                aux.append(x.text)
-            rows.append(aux)
-        return rows
+            for j in range(len(self.releases_table_head)):
+                if(i > len(self.current_element)):
+                    break
+                else:
+                    aux.append(self.current_element[i].text)
+                    i += 1
+            self.releases_table_rows.append(aux)
+            
+        return self.releases_table_rows
+    
     
     def get_versions_table(self):
         table_head = self.get_versions_table_head()
@@ -49,23 +55,27 @@ class PythonDownloadsPage(ChromeDriver):
             
     def get_versions_table_head(self):
         self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/div[@class='list-row-headings']/span")
-        aux = []
+        self.versions_table_head = []
         
         for i in self.current_element:
-            aux.append(i.text)
+            self.versions_table_head.append(i.text)
         
-        return aux
+        return self.versions_table_head
         
     def get_versions_table_rows(self):
-        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']/li")
-        rows = []
-        for i in range(len(self.current_element)):
-            row = self.browser.find_elements_by_xpath(f"//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']/li[{i+1}]/span")
+        self.current_element = self.browser.find_elements_by_xpath("//section[@class='main-content ']/div[@class='row active-release-list-widget']/ol[@class='list-row-container menu']/li/span")
+        self.versions_table_rows = []
+        i=0
+        while i < len(self.current_element):
             aux = []
-            for x in row:
-                aux.append(x.text)
-            rows.append(aux)
-        return rows
+            for j in range(len(self.versions_table_head)):
+                if(i > len(self.current_element)):
+                    break
+                else:
+                    aux.append(self.current_element[i].text)
+                    i += 1
+            self.versions_table_rows.append(aux)
+        return self.versions_table_rows
           
     def get_versions_table_row(self, row=0):
         return self.version_table[row]
